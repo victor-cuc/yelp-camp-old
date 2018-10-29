@@ -1,8 +1,8 @@
-##Welcome to YelpCamp.
+## Welcome to YelpCamp.
 
-####This is my first full-stack project.
+#### This is my first full-stack project.
 
-###Technologies:
+### Technologies:
 
 - Vanilla JS, EJS
 - Express, Node.js
