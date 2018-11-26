@@ -9,14 +9,17 @@ app.set("view engine", "ejs");
 
 const campgroundSchema = new mongoose.Schema({
   name: String,
-  image: String
+  image: String,
+  description: String,
 });
 
 const Campground = mongoose.model("Campground", campgroundSchema);
 
 // Campground.create(
   
-//     {name: "Mountain Goats Rest", image: "https://www.quebecoriginal.com/en/listing/images/800x600/ae2894cf-af0a-46dc-904d-8a91b0059376/camping-parc-national-du-mont-tremblant-de-la-diable-camping-secteur-la-diable.jpg"}
+//     {name: "Mountain Goats Rest", 
+//     image: "https://www.quebecoriginal.com/en/listing/images/800x600/ae2894cf-af0a-46dc-904d-8a91b0059376/camping-parc-national-du-mont-tremblant-de-la-diable-camping-secteur-la-diable.jpg",
+//     description: "Very nice!"}
 //   , 
 //   (err, campground) => {
 //     if (err) {
@@ -45,7 +48,7 @@ app.get("/campgrounds", (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      res.render("campgrounds", {campgrounds: allCampgrounds});
+      res.render("index", {campgrounds: allCampgrounds});
     }
   })
 
@@ -56,7 +59,8 @@ app.post("/campgrounds", (req, res) => {
   //get data from forms and add to campgrounds array
   const name = req.body.name;
   const image = req.body.image;
-  const newCampground = {name: name, image: image};
+  const description = req.body.description;
+  const newCampground = {name: name, image: image, description: description};
   // Create new campground and save to db
   Campground.create(newCampground, (err, newCampground) => {
     if (err) {
@@ -70,6 +74,16 @@ app.post("/campgrounds", (req, res) => {
 
 app.get("/campgrounds/new", (req, res) => {
   res.render("new");
+});
+
+app.get("/campgrounds/:id", (req, res) => {
+  Campground.findById(req.params.id, (err, foundCampground) => {
+    if (err) {
+      console.log(err); 
+    } else {
+      res.render("show", {campground: foundCampground});
+    }
+  });
 });
 
 app.listen(3000, () => {
