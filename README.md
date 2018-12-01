@@ -6,5 +6,5 @@
 
 - Vanilla JS, EJS
 - Express, Node.js
-- MongoDB
-- HTML, CSS (Bootstrap)
+- MongoDB, Mongoose
+- HTML, CSS, Bootstrap
