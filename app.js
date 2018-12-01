@@ -1,22 +1,25 @@
-const express    = require('express'),
-      app        = express(),
-      bodyParser = require('body-parser'),
-      mongoose   = require('mongoose'),
-      Campground = require('./models/campground'),
-      seedDB     = require('./seeds');
-      //Comment = require("./models/comments");
+const express = require("express"),
+  app = express(),
+  bodyParser = require("body-parser"),
+  mongoose = require("mongoose"),
+  Campground = require("./models/campground"),
+  seedDB = require("./seeds");
+  Comment = require("./models/comment");
 
-mongoose.connect("mongodb://localhost:27017/yelp_camp", { useNewUrlParser: true });
-app.use(bodyParser.urlencoded({extended:true}));
+mongoose.connect(
+  "mongodb://localhost:27017/yelp_camp",
+  { useNewUrlParser: true }
+);
+app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 seedDB();
 
 // Campground.create(
-  
-//     {name: "Mountain Goats Rest", 
+
+//     {name: "Mountain Goats Rest",
 //     image: "https://www.quebecoriginal.com/en/listing/images/800x600/ae2894cf-af0a-46dc-904d-8a91b0059376/camping-parc-national-du-mont-tremblant-de-la-diable-camping-secteur-la-diable.jpg",
 //     description: "Very nice!"}
-//   , 
+//   ,
 //   (err, campground) => {
 //     if (err) {
 //       console.log("Error");
@@ -40,13 +43,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/campgrounds", (req, res) => {
-  Campground.find( {}, (err, allCampgrounds) => {
+  Campground.find({}, (err, allCampgrounds) => {
     if (err) {
       console.log(err);
     } else {
-      res.render("index", {campgrounds: allCampgrounds});
+      res.render("campgrounds/index", { campgrounds: allCampgrounds });
     }
-  })
+  });
 
   // res.render("campgrounds", {campgrounds: campgrounds});
 });
@@ -56,30 +59,68 @@ app.post("/campgrounds", (req, res) => {
   const name = req.body.name;
   const image = req.body.image;
   const description = req.body.description;
-  const newCampground = {name: name, image: image, description: description};
+  const newCampground = { name: name, image: image, description: description };
   // Create new campground and save to db
   Campground.create(newCampground, (err, newCampground) => {
     if (err) {
       console.log(err);
     } else {
       //redirect to campgrounds page
-      res.redirect('/campgrounds');
+      res.redirect("/campgrounds");
     }
-  })
+  });
 });
 
 app.get("/campgrounds/new", (req, res) => {
-  res.render("new");
+  res.render("campgrounds/new");
 });
 
 app.get("/campgrounds/:id", (req, res) => {
-  Campground.findById(req.params.id).populate("comments").exec((err, foundCampground) => {
+  Campground.findById(req.params.id)
+    .populate("comments")
+    .exec((err, foundCampground) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.render("campgrounds/show", { campground: foundCampground });
+      }
+    });
+});
+
+// NEW COMMENT route
+app.get("/campgrounds/:id/comments/new", (req, res) => {
+  Campground.findById(req.params.id, (err, campground) => {
     if (err) {
-      console.log(err); 
+      console.log(err);
     } else {
-      res.render("show", {campground: foundCampground});
+      res.render("comments/new", { campground: campground });
     }
   });
+});
+
+app.post("/campgrounds/:id/comments", (req, res) => {
+  //lookup campground using id
+  Campground.findById(req.params.id, (err, campground) => {
+    if (err) {
+      console.log(err);
+      res.redirect("/campgrounds");
+    } else {
+      Comment.create(req.body.comment, (err, comment) => {
+        if (err) {
+          console.log(err);
+        } else {
+          campground.comments.push(comment);
+          campground.save();
+          res.redirect("/campgrounds/"+campground._id);
+        }
+      });
+    }
+  });
+  //create new comm
+
+  //connect new comm to campground
+
+  //redirect to campground SHOW page
 });
 
 app.listen(3000, () => {
